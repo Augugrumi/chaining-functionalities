@@ -9,10 +9,22 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.logging.Logger;
 
+/**
+ * Class that implements base method for sending and receiving HTTP requests
+ */
 public abstract class AbsBaseServer implements Server {
 
+    /**
+     * Logging utility field
+     */
     private static final Logger LOGGER = Logger.getLogger(BaseVNF.class.getName());
 
+    /**
+     * Method to wait for a connection and retrieve data as an HttpPacket object
+     * @param ss ServerSocket to which requests are retrieved
+     * @return HttpPacket that represent the request
+     * @throws IOException if connection breaks
+     */
     @Override
     public HttpPacket receive(ServerSocket ss) throws IOException {
         Socket client = ss.accept();
@@ -55,6 +67,11 @@ public abstract class AbsBaseServer implements Server {
         return new HttpPacket(request.toString(), postData);
     }
 
+    /**
+     * Method to send a POST request
+     * @param message String that represent the message that will be sent
+     * @param destination String that represent the address of the receiver
+     */
     @Override
     public void send(String message, String destination) {
         HttpURLConnection connection = null;
