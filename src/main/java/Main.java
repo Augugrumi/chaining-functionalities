@@ -57,7 +57,7 @@ class AddStringVNF extends BaseVNF {
     private String toAdd;
 
     public AddStringVNF(String toAdd, int port, String[] chain) {
-        super(port, chain);
+        super(port);
         this.toAdd = toAdd;
     }
 

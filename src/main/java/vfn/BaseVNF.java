@@ -8,6 +8,8 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.ServerSocket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import static httputils.MessageWrapper.wrapMessage;
@@ -43,38 +45,43 @@ public abstract class BaseVNF extends AbsBaseServer implements VNF {
      * Method to make VNF waiting for message (use TEMPLATE METHOD)
      * @throws IOException if connection breaks
      */
-    // TODO run VNF functionality inside new thread
     public void execute() throws IOException {
         ServerSocket ss = new ServerSocket(port);
 
+        // To execute all runnable -> VNFs functionalities
+        ExecutorService executor = Executors.newCachedThreadPool();
+
         for(;;) {
-            try {
-                String postData = receive(ss).getPostData();
+            String postData = receive(ss).getPostData();
 
-                System.out.println(postData);
+            executor.execute(() -> {
+                try {
 
-                JSONObject jsonData = new JSONObject(postData);
+                    System.out.println(postData);
 
-                String message = (String) jsonData.get("message");
-                String messageModified = functionality(message);
+                    JSONObject jsonData = new JSONObject(postData);
 
-                // TODO do something better
-                String next = "http://localhost:80";
-                String[] chain = new String[0];
-                JSONArray arr = jsonData.getJSONArray("chain");
-                if (arr.length() > 1) {
-                    chain = new String[arr.length() - 1];
-                    next = arr.getString(1);
-                    for (int i = 1; i < arr.length(); i++) {
-                        chain[i - 1] = arr.getString(i);
+                    String message = (String) jsonData.get("message");
+                    String messageModified = functionality(message);
+
+                    // TODO do something better
+                    String next = "http://localhost:80";
+                    String[] chain = new String[0];
+                    JSONArray arr = jsonData.getJSONArray("chain");
+                    if (arr.length() > 1) {
+                        chain = new String[arr.length() - 1];
+                        next = arr.getString(1);
+                        for (int i = 1; i < arr.length(); i++) {
+                            chain[i - 1] = arr.getString(i);
+                        }
                     }
-                }
 
-                System.out.println("message: " + wrapMessage(messageModified, chain));
-                send(wrapMessage(messageModified, chain), next);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                    System.out.println("message: " + wrapMessage(messageModified, chain));
+                    send(wrapMessage(messageModified, chain), next);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 }
