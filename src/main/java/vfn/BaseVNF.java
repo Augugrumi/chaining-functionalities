@@ -8,10 +8,13 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.ServerSocket;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+import static httputils.MessageWrapper.unwrapChain;
+import static httputils.MessageWrapper.unwrapMessage;
 import static httputils.MessageWrapper.wrapMessage;
 
 /**
@@ -56,28 +59,19 @@ public abstract class BaseVNF extends AbsBaseServer implements VNF {
 
             executor.execute(() -> {
                 try {
+                    // retrieve the original message and perform modification
+                    String messageModified = functionality(unwrapMessage(postData));
 
-                    System.out.println(postData);
-
-                    JSONObject jsonData = new JSONObject(postData);
-
-                    String message = (String) jsonData.get("message");
-                    String messageModified = functionality(message);
-
-                    // TODO do something better
+                    String[] chain = unwrapChain(postData);
                     String next = "http://localhost:80";
-                    String[] chain = new String[0];
-                    JSONArray arr = jsonData.getJSONArray("chain");
-                    if (arr.length() > 1) {
-                        chain = new String[arr.length() - 1];
-                        next = arr.getString(1);
-                        for (int i = 1; i < arr.length(); i++) {
-                            chain[i - 1] = arr.getString(i);
-                        }
+                    String[] newChain = new String[0];
+                    if (chain.length > 1) {
+                        newChain = Arrays.copyOfRange(chain, 1, chain.length);
+                        next = newChain[0];
                     }
 
-                    System.out.println("message: " + wrapMessage(messageModified, chain));
-                    send(wrapMessage(messageModified, chain), next);
+                    System.out.println("message: " + wrapMessage(messageModified, newChain));
+                    send(wrapMessage(messageModified, newChain), next);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

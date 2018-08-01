@@ -1,5 +1,6 @@
 import enchainer.Enchainer;
 import vfn.BaseVNF;
+import vfn.testvnfs.AddStringVNF;
 
 import java.io.IOException;
 
@@ -10,16 +11,15 @@ public class Main {
         chain[0] = "http://localhost:55561";
         chain[1] = "http://localhost:55560";
         chain[2] = "http://localhost:80";
-        Enchainer e = new Enchainer();
-        e.chain = chain;
+        Enchainer e = new Enchainer(55560, chain);
 
 
         chain = new String[1];
         chain[0] = "http://localhost:55560";
-        final AddStringVNF v2 = new AddStringVNF("v2", 55561, chain);
+        final AddStringVNF v2 = new AddStringVNF("v2", 55561);
         chain = new String[1];
         chain[0] = "http://localhost:80";
-        final AddStringVNF v1 = new AddStringVNF("v1", 55560, chain);
+        final AddStringVNF v1 = new AddStringVNF("v1", 55560);
 
         new Thread(new Runnable() {
             public void run() {
@@ -43,26 +43,11 @@ public class Main {
 
 
         try {
-            e.method(55562);
+            e.execute();
         } catch (IOException e1) {
             e1.printStackTrace();
         }
 
 
-    }
-}
-
-class AddStringVNF extends BaseVNF {
-
-    private String toAdd;
-
-    public AddStringVNF(String toAdd, int port, String[] chain) {
-        super(port);
-        this.toAdd = toAdd;
-    }
-
-    public String functionality(String message) {
-        //System.out.println("Message received:" + message);
-        return message + toAdd;
     }
 }

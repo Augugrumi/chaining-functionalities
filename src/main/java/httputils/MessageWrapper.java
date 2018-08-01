@@ -13,6 +13,9 @@ public class MessageWrapper {
     // private constructor because there is no need to create object of this class
     private MessageWrapper(){}
 
+    public static final String MESSAGE = "message";
+    public static final String CHAIN = "chain";
+
     /**
      * Method to puth a message inside a JSON to be exchange among links of the VNF chain
      * @param message message that will be added to the JSON accessible with the key "message"
@@ -23,12 +26,26 @@ public class MessageWrapper {
     public static String wrapMessage(String message, String[] chain) {
         JSONObject jsonMessage = new JSONObject();
 
-        jsonMessage.put("message", message);
+        jsonMessage.put(MESSAGE, message);
         if (chain.length > 0) {
             JSONArray mJSONArray = new JSONArray(Arrays.asList(chain));
-            jsonMessage.put("chain", mJSONArray);
+            jsonMessage.put(CHAIN, mJSONArray);
         } else
-            jsonMessage.put("chain", "[]");
+            jsonMessage.put(CHAIN, "[]");
         return jsonMessage.toString();
+    }
+
+    public static String unwrapMessage(String jsonMessage) {
+        JSONObject jsonData = new JSONObject(jsonMessage);
+        return (String) jsonData.get(MESSAGE);
+    }
+
+    public static String[] unwrapChain(String jsonMessage) {
+        JSONObject jsonData = new JSONObject(jsonMessage);
+        JSONArray arr = jsonData.getJSONArray(CHAIN);
+        String[] chain = new String[arr.length()];
+        for (int i = 0; i < arr.length(); i++)
+            chain[i] = arr.getString(i);
+        return chain;
     }
 }
