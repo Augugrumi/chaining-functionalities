@@ -1,10 +1,6 @@
 package vfn;
 
-import enchainer.Enchainer;
 import httputils.AbsBaseServer;
-import httputils.MessageWrapper;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -63,15 +59,21 @@ public abstract class BaseVNF extends AbsBaseServer implements VNF {
                     String messageModified = functionality(unwrapMessage(postData));
 
                     String[] chain = unwrapChain(postData);
-                    String next = "http://localhost:80";
-                    String[] newChain = new String[0];
-                    if (chain.length > 1) {
-                        newChain = Arrays.copyOfRange(chain, 1, chain.length);
+                    String next;
+                    if (chain.length > 2) {
+                        String[] newChain = Arrays.copyOfRange(chain, 1, chain.length);
                         next = newChain[0];
+                        System.out.println("message: " + wrapMessage(messageModified, newChain));
+                        sendPOST(wrapMessage(messageModified, newChain), next);
+                    } else {
+                        next = chain[1];
+                        //messageModified = messageModified.replaceAll("Host: .+", "Host: " + next);
+                        System.out.println("message: " + messageModified);
+                        System.out.println("next: " + next);
+
+                        send(messageModified, next);
                     }
 
-                    System.out.println("message: " + wrapMessage(messageModified, newChain));
-                    send(wrapMessage(messageModified, newChain), next);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

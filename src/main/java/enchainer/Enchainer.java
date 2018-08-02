@@ -1,8 +1,6 @@
 package enchainer;
 
 import httputils.AbsBaseServer;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -39,7 +37,7 @@ public class Enchainer extends AbsBaseServer {
 
             executor.execute(() -> {
                 String wrappedMessage = wrapMessage(originalMessage, chain);
-                send(wrappedMessage, chain[0]);
+                sendPOST(wrappedMessage, chain[0]);
             });
         }
     }

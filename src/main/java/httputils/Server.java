@@ -21,5 +21,12 @@ public interface Server {
      * @param message String that represent the message that will be sent
      * @param destination String that represent the address of the receiver
      */
+    void sendPOST(String message, String destination);
+
+    /**
+     * Method to send a raw request
+     * @param message String that represent the message that will be sent
+     * @param destination String that represent the address of the receiver
+     */
     void send(String message, String destination);
 }

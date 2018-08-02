@@ -73,7 +73,7 @@ public abstract class AbsBaseServer implements Server {
      * @param destination String that represent the address of the receiver
      */
     @Override
-    public void send(String message, String destination) {
+    public void sendPOST(String message, String destination) {
         HttpURLConnection connection = null;
 
         try {
@@ -115,6 +115,31 @@ public abstract class AbsBaseServer implements Server {
             if (connection != null) {
                 connection.disconnect();
             }
+        }
+    }
+
+    /**
+     * Method to send a raw request
+     * @param message String that represent the message that will be sent
+     * @param destination String that represent the address of the receiver
+     */
+    @Override
+    public void send(String message, String destination) {
+        Socket socket = null;
+        try {
+            URL url = new URL(destination);
+
+            socket = new Socket(url.getHost(),url.getPort());
+
+            PrintWriter pw = new PrintWriter(socket.getOutputStream());
+            pw.print(message);
+            pw.flush();
+            pw.close();
+
+            socket.close();
+        } catch (Exception e) {
+             LOGGER.warning("Something goes wrong");
+             e.printStackTrace();
         }
     }
 }
