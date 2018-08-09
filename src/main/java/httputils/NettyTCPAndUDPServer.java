@@ -9,13 +9,13 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class NettyTCPAndUDPServer extends AbsBaseServer {
+public class NettyTCPAndUDPServer {
     /**
      * Method to wait for a connection and manage the message
      * @param port int that represent the port on which the sever is listening
      * @param handler AbsNettyMessageHandler to which requests are retrieved
      */
-    @Override
+
     public void receive(int port, MessageHandler handler) {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();

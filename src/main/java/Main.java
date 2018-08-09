@@ -4,7 +4,8 @@ import vfn.testvnfs.AddStringVNF;
 public class Main {
 
     public static void main(String args[]) {
-        String[] chain = new String[3];
+        int chainLength = 3;
+        String[] chain = new String[chainLength];
         chain[0] = "http://localhost:55561";
         chain[1] = "http://localhost:55562";
         chain[2] = "http://localhost:55564";

@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 /**
  * Class that implements base method for sending and receiving HTTP requests
  */
-public abstract class AbsBaseServer implements Server {
+public class AbsBaseServer implements Server {
 
     /**
      * Logging utility field
@@ -23,6 +23,7 @@ public abstract class AbsBaseServer implements Server {
      */
     @Override
     public void sendPOST(String message, String destination) {
+        LOGGER.info(message);
         HttpURLConnection connection = null;
 
         try {
@@ -91,5 +92,10 @@ public abstract class AbsBaseServer implements Server {
              LOGGER.warning("Something goes wrong");
              e.printStackTrace();
         }
+    }
+
+    @Override
+    public void receive(int port, MessageHandler handler) {
+
     }
 }

@@ -1,12 +1,11 @@
 package vfn;
 
 import executeonmain.ExecuteOnMain;
-import httputils.MessageHandler;
 
 /**
  * Basic interface of a VNF object
  */
-public interface VNF extends MessageHandler, ExecuteOnMain {
+public interface VNF extends ExecuteOnMain {
     /**
      * Function that is applied to the message
      * @param message Message on which the function is applied
