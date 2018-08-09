@@ -1,10 +1,16 @@
 package httputils;
 
-import vfn.BaseVNF;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -12,59 +18,53 @@ import java.util.logging.Logger;
 /**
  * Class that implements base method for sending and receiving HTTP requests
  */
-public abstract class AbsBaseServer implements Server {
+public class BaseServer implements Server {
 
     /**
      * Logging utility field
      */
-    private static final Logger LOGGER = Logger.getLogger(BaseVNF.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(BaseServer.class.getName());
 
     /**
-     * Method to wait for a connection and retrieve data as an HttpPacket object
-     * @param ss ServerSocket to which requests are retrieved
-     * @return HttpPacket that represent the request
-     * @throws IOException if connection breaks
+     * Method to wait for a connection and manage the message
+     * @param port int that represent the port on which the sever is listening
+     * @param handler AbsNettyMessageHandler to which requests are retrieved
      */
     @Override
-    public HttpPacket receive(ServerSocket ss) throws IOException {
-        Socket client = ss.accept();
-        InputStream is = client.getInputStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
-        String line;
-        line = in.readLine();
-        String request_method = line;
-        StringBuilder request = new StringBuilder();
-        request.append(line);
-        line = "";
-        // looks for post data
-        int postDataI = -1;
-        while ((line = in.readLine()) != null && (line.length() != 0)) {
-            request.append(line);
-            request.append("\r\n");
-            if (line.contains("Content-Length:")) {
-                postDataI = new Integer(line.substring(line.indexOf("Content-Length:") + 16, line.length()));
+    public void receive(int port, AbsNettyMessageHandler handler) {
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        ChannelInitializer init = new ChannelInitializer() {
+            @Override
+            protected void initChannel(Channel channel) {
+                channel.pipeline().addLast(handler);
             }
+        };
+
+        new Thread(() -> {
+            try {
+                new Bootstrap()
+                        .group(bossGroup)
+                        .channel(NioDatagramChannel.class)
+                        .handler(init)
+                        .bind(port).sync().channel().closeFuture().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        try {
+            new ServerBootstrap()
+                    .group( bossGroup, workerGroup )
+                    .channel( NioServerSocketChannel.class )
+                    .childHandler(init)
+                    .bind( port ).sync().channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
-        String postData = "";
-        // read the post data
-        if (postDataI > 0) {
-            char[] charArray = new char[postDataI];
-            in.read(charArray, 0, postDataI);
-            postData = new String(charArray);
-        }
-
-        PrintWriter out = new PrintWriter(client.getOutputStream());
-        out.print("HTTP/1.1 200 \r\n"); // Version & status code
-        out.print("Content-Type: text/plain\r\n"); // The type of data
-        out.print("Connection: close\r\n"); // Will close stream
-        out.print("\r\n");
-        out.print("ACK\r\n");
-
-        out.close(); // Flush and close the output stream
-        in.close(); // Close the input stream
-        client.close(); // Close the socket itself
-
-        return new HttpPacket(request.toString(), postData);
     }
 
     /**
