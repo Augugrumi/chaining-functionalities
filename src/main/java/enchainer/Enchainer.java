@@ -4,12 +4,19 @@ import executeonmain.ExecuteOnMain;
 import httputils.AbsNettyMessageHandler;
 import httputils.NettyTCPAndUDPServer;
 import httputils.Server;
+import vfn.AbsBaseVNF;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import static httputils.MessageWrapper.wrapMessage;
 
 public class Enchainer implements ExecuteOnMain {
+
+    /**
+     * Logging utility field
+     */
+    private static final Logger LOGGER = Logger.getLogger(Enchainer.class.getName());
 
     private int port;
 
@@ -27,8 +34,10 @@ public class Enchainer implements ExecuteOnMain {
     public void execute() {
         server.receive(port, new AbsNettyMessageHandler() {
             @Override
-            public void handleMessage() {
-                server.sendPOST(wrapMessage(getMessage(), chain), chain[0]);
+            public void handleMessage(String message) {
+                String jsonMessage = wrapMessage(message, chain);
+                LOGGER.warning(jsonMessage);
+                server.sendPOST(jsonMessage, chain[0]);
             }
         });
     }

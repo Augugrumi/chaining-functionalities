@@ -3,6 +3,7 @@ package httputils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
@@ -10,20 +11,15 @@ import io.netty.util.ReferenceCountUtil;
 
 import java.nio.charset.Charset;
 
+
+@ChannelHandler.Sharable
 public abstract class AbsNettyMessageHandler extends ChannelInboundHandlerAdapter implements MessageHandler {
-
-    private String message;
-
-    @Override
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
             Charset utf8 = CharsetUtil.UTF_8;
-            message = "";
+            String message = "";
             if (msg instanceof ByteBuf)
                 message = ( (ByteBuf)msg ).toString( utf8 );
             else if (msg instanceof ByteBufHolder)
@@ -33,7 +29,7 @@ public abstract class AbsNettyMessageHandler extends ChannelInboundHandlerAdapte
             if (msg instanceof ByteBuf)
                 ctx.close();
 
-            handleMessage();
+            handleMessage(message);
         }
         finally {
             ReferenceCountUtil.release( msg );
@@ -44,10 +40,5 @@ public abstract class AbsNettyMessageHandler extends ChannelInboundHandlerAdapte
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
     }
 }

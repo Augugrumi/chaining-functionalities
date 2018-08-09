@@ -1,14 +1,5 @@
 package httputils;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.Socket;
@@ -18,54 +9,12 @@ import java.util.logging.Logger;
 /**
  * Class that implements base method for sending and receiving HTTP requests
  */
-public class BaseServer implements Server {
+public abstract class AbsBaseServer implements Server {
 
     /**
      * Logging utility field
      */
-    private static final Logger LOGGER = Logger.getLogger(BaseServer.class.getName());
-
-    /**
-     * Method to wait for a connection and manage the message
-     * @param port int that represent the port on which the sever is listening
-     * @param handler AbsNettyMessageHandler to which requests are retrieved
-     */
-    @Override
-    public void receive(int port, AbsNettyMessageHandler handler) {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        ChannelInitializer init = new ChannelInitializer() {
-            @Override
-            protected void initChannel(Channel channel) {
-                channel.pipeline().addLast(handler);
-            }
-        };
-
-        new Thread(() -> {
-            try {
-                new Bootstrap()
-                        .group(bossGroup)
-                        .channel(NioDatagramChannel.class)
-                        .handler(init)
-                        .bind(port).sync().channel().closeFuture().sync();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-
-        try {
-            new ServerBootstrap()
-                    .group( bossGroup, workerGroup )
-                    .channel( NioServerSocketChannel.class )
-                    .childHandler(init)
-                    .bind( port ).sync().channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
-    }
+    private static final Logger LOGGER = Logger.getLogger(AbsBaseServer.class.getName());
 
     /**
      * Method to send a POST request
@@ -82,7 +31,7 @@ public class BaseServer implements Server {
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
+                    "application/json");
 
             connection.setRequestProperty("Content-Length",
                     Integer.toString(message.getBytes().length));
@@ -125,6 +74,7 @@ public class BaseServer implements Server {
      */
     @Override
     public void send(String message, String destination) {
+        LOGGER.info(message);
         Socket socket = null;
         try {
             URL url = new URL(destination);

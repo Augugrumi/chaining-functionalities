@@ -1,13 +1,13 @@
 package vfn.testvnfs;
 
-import vfn.BaseVNF;
+import vfn.AbsBaseVNF;
 
 import java.io.IOException;
 
 /**
  * Simple VNF that append a string in the end of a packet
  */
-public class AddStringVNF extends BaseVNF {
+public class AddStringVNF extends AbsBaseVNF {
 
     private String toAdd;
 
@@ -21,10 +21,6 @@ public class AddStringVNF extends BaseVNF {
     }
 
     public static void main(String[] args) {
-        try {
-            new AddStringVNF(args[1], Integer.parseInt(args[0])).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new AddStringVNF(args[1], Integer.parseInt(args[0])).execute();
     }
 }

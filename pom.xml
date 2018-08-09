@@ -71,6 +71,12 @@
             <artifactId>netty-all</artifactId>
             <version>4.1.28.Final</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.rapidoid</groupId>
+            <artifactId>rapidoid-http-server</artifactId>
+            <version>5.5.5</version>
+        </dependency>
     </dependencies>
 
 
