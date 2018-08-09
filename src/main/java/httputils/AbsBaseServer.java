@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 /**
  * Class that implements base method for sending and receiving HTTP requests
  */
-public class AbsBaseServer implements Server {
+public abstract class AbsBaseServer implements Server {
 
     /**
      * Logging utility field
@@ -23,7 +23,6 @@ public class AbsBaseServer implements Server {
      */
     @Override
     public void sendPOST(String message, String destination) {
-        LOGGER.info(message);
         HttpURLConnection connection = null;
 
         try {
@@ -52,7 +51,6 @@ public class AbsBaseServer implements Server {
             StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
             String line;
             while ((line = rd.readLine()) != null) {
-                //System.out.println(line);
                 if (line.length() == 0)
                     break;
                 response.append(line + "\r\n");
@@ -75,7 +73,6 @@ public class AbsBaseServer implements Server {
      */
     @Override
     public void send(String message, String destination) {
-        LOGGER.info(message);
         Socket socket = null;
         try {
             URL url = new URL(destination);
@@ -94,8 +91,4 @@ public class AbsBaseServer implements Server {
         }
     }
 
-    @Override
-    public void receive(int port, MessageHandler handler) {
-
-    }
 }

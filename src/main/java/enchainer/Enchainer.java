@@ -1,26 +1,9 @@
 package enchainer;
 
 import executeonmain.ExecuteOnMain;
-import httputils.AbsBaseServer;
 import httputils.AbsNettyMessageHandler;
 import httputils.NettyTCPAndUDPServer;
-import httputils.Server;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufHolder;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.CharsetUtil;
-import io.netty.util.ReferenceCountUtil;
-import netty_package_to_remove.Main;
-import vfn.AbsBaseVNF;
 
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import static httputils.MessageWrapper.wrapMessage;
@@ -34,7 +17,7 @@ public class Enchainer implements ExecuteOnMain {
 
     private int port;
 
-    private static String[] chain;
+    private String[] chain;
 
     private NettyTCPAndUDPServer server;
 
@@ -46,15 +29,15 @@ public class Enchainer implements ExecuteOnMain {
 
     @Override
     public void execute() {
-        /*server.receive(port, new AbsNettyMessageHandler() {
+        server.receive(port, new AbsNettyMessageHandler() {
             @Override
             public void handleMessage(String message) {
                 String jsonMessage = wrapMessage(message, chain);
                 LOGGER.warning(jsonMessage);
-                new AbsBaseServer().sendPOST(jsonMessage, chain[0]);
+                server.sendPOST(jsonMessage, chain[0]);
             }
-        });*/
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        });
+        /*EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         ChannelInitializer init = new ChannelInitializer() {
             @Override
@@ -137,6 +120,6 @@ public class Enchainer implements ExecuteOnMain {
     public static void main(String[] args) {
         String[] chain = Arrays.copyOfRange(args, 1, args.length);
         new Enchainer(Integer.parseInt(args[0]), chain).execute();
-    }
+    }*/}
 
 }
