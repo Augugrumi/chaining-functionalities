@@ -35,11 +35,21 @@ public class MessageWrapper {
         return jsonMessage.toString();
     }
 
+    /**
+     * Method that given a JSON message return the original message embedded
+     * @param jsonMessage String that represent the JSON message
+     * @return String that represent the original message
+     */
     public static String unwrapMessage(String jsonMessage) {
         JSONObject jsonData = new JSONObject(jsonMessage);
         return (String) jsonData.get(MESSAGE);
     }
 
+    /**
+     * Method that given a JSON message return the chain of VNF to which the message have to pass through
+     * @param jsonMessage String that represent the JSON message
+     * @return String[] chain of VNFs
+     */
     public static String[] unwrapChain(String jsonMessage) {
         JSONObject jsonData = new JSONObject(jsonMessage);
         JSONArray arr = jsonData.getJSONArray(CHAIN);

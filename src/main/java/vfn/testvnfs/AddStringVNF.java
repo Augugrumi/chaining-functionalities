@@ -2,8 +2,6 @@ package vfn.testvnfs;
 
 import vfn.AbsBaseVNF;
 
-import java.io.IOException;
-
 /**
  * Simple VNF that append a string in the end of a packet
  */

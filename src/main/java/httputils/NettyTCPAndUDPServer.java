@@ -9,6 +9,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+/**
+ * Simple both UDP and TCP server using Netty library
+ */
 public class NettyTCPAndUDPServer extends AbsBaseServer {
     /**
      * Method to wait for a connection and manage the message

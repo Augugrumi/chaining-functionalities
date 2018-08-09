@@ -11,10 +11,17 @@ import io.netty.util.ReferenceCountUtil;
 
 import java.nio.charset.Charset;
 
-
+/**
+ * Abstract handler to manage messages coming from server bootstrapped with Netty
+ */
 @ChannelHandler.Sharable
 public abstract class AbsNettyMessageHandler extends ChannelInboundHandlerAdapter implements MessageHandler {
 
+    /**
+     * Listen to the channel to retrieve messagges
+     * @param ctx ChannelHandlerContext channel to be listened
+     * @param msg Object message received
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
@@ -25,12 +32,13 @@ public abstract class AbsNettyMessageHandler extends ChannelInboundHandlerAdapte
             else if (msg instanceof ByteBufHolder) // UDP packet
                 message = ( (ByteBufHolder)msg).content().toString(utf8);
 
-
-            ctx.writeAndFlush(Unpooled.copiedBuffer(HttpCostants.OK, utf8));
+            // response
+            ctx.writeAndFlush(Unpooled.copiedBuffer(MyHttpConstants.OK, utf8));
             if (msg instanceof ByteBuf) {
                 ctx.close();
             }
 
+            // handling the message in a separate thread
             String finalIn = message;
             new Thread(() -> handleMessage(finalIn)).start();
 
@@ -40,6 +48,11 @@ public abstract class AbsNettyMessageHandler extends ChannelInboundHandlerAdapte
         }
     }
 
+    /**
+     * Error handling
+     * @param ctx ChannelHandlerContext channel to be listened
+     * @param cause Throwable exception launched
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
